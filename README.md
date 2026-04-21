@@ -80,12 +80,6 @@ label-studio start
 http://localhost:8080
 ```
 
-建议在 Label Studio 中导入：
-
-```text
-.\02_wav_audio
-```
-
 ### 4. 导出标注结果
 
 把 Label Studio 导出的 JSON 文件统一保存到：
