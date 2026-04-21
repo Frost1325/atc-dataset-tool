@@ -46,6 +46,10 @@ def parse_args() -> argparse.Namespace:
         default="ffmpeg",
         help="Path to ffmpeg executable. Defaults to ffmpeg in PATH.",
     )
+    parser.add_argument(
+        "--output-root",
+        help="Optional output root folder. If set, converted wav files are written there with the same relative structure.",
+    )
     return parser.parse_args()
 
 
@@ -80,10 +84,15 @@ def convert_file(source: Path, target: Path, ffmpeg_cmd: str, overwrite: bool) -
     subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
+def copy_wav_file(source: Path, target: Path) -> None:
+    shutil.copy2(source, target)
+
+
 def main() -> int:
     args = parse_args()
     root = Path(args.root).expanduser().resolve()
     extensions = normalize_extensions(args.extensions)
+    output_root = Path(args.output_root).expanduser().resolve() if args.output_root else None
 
     if not root.exists():
         print(f"[ERROR] Folder does not exist: {root}")
@@ -102,20 +111,32 @@ def main() -> int:
         return 0
 
     print(f"[INFO] Matching extensions: {', '.join(sorted(extensions))}")
+    if output_root is not None:
+        print(f"[INFO] Output root: {output_root}")
 
     success_count = 0
     skipped_count = 0
     failed_count = 0
 
     for source in files:
-        target = source.with_suffix(".wav")
+        if output_root is not None:
+            relative_path = source.relative_to(root)
+            target = (output_root / relative_path).with_suffix(".wav")
+        else:
+            target = source.with_suffix(".wav")
+
+        target.parent.mkdir(parents=True, exist_ok=True)
+
         if target.exists() and not args.overwrite:
             print(f"[SKIP] {target} already exists")
             skipped_count += 1
             continue
 
         try:
-            convert_file(source, target, args.ffmpeg, args.overwrite)
+            if source.suffix.lower() == ".wav":
+                copy_wav_file(source, target)
+            else:
+                convert_file(source, target, args.ffmpeg, args.overwrite)
             print(f"[OK] {source} -> {target}")
             success_count += 1
         except subprocess.CalledProcessError as exc:
@@ -123,6 +144,10 @@ def main() -> int:
             print(f"[FAIL] {source}")
             if error_output:
                 print(error_output)
+            failed_count += 1
+        except OSError as exc:
+            print(f"[FAIL] {source}")
+            print(str(exc))
             failed_count += 1
 
     print(

@@ -17,6 +17,10 @@ def parse_args() -> argparse.Namespace:
         help="Output JSON path. Defaults to <input_stem>.dataset.json",
     )
     parser.add_argument(
+        "--output-dir",
+        help="Optional output directory. If set, the output file is written there as <input_stem>.dataset.json.",
+    )
+    parser.add_argument(
         "--indent",
         type=int,
         default=2,
@@ -124,11 +128,13 @@ def convert_export(tasks: list[dict[str, Any]]) -> list[dict[str, Any]]:
 def main() -> int:
     args = parse_args()
     input_path = Path(args.input).expanduser().resolve()
-    output_path = (
-        Path(args.output).expanduser().resolve()
-        if args.output
-        else input_path.with_name(f"{input_path.stem}.dataset.json")
-    )
+    if args.output:
+        output_path = Path(args.output).expanduser().resolve()
+    elif args.output_dir:
+        output_dir = Path(args.output_dir).expanduser().resolve()
+        output_path = output_dir / f"{input_path.stem}.dataset.json"
+    else:
+        output_path = input_path.with_name(f"{input_path.stem}.dataset.json")
 
     if not input_path.exists():
         print(f"[ERROR] Input file does not exist: {input_path}")
@@ -140,6 +146,7 @@ def main() -> int:
         return 1
 
     dataset = convert_export(tasks)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
     with output_path.open("w", encoding="utf-8") as f:
         json.dump(dataset, f, ensure_ascii=False, indent=args.indent)
