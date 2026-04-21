@@ -18,9 +18,9 @@ atc_dataset_tool/
 推荐约定：
 
 - 原始音频统一放到 `01_raw_audio`
-- 转换后的 `.wav` 统一输出到 `02_wav_audio`
-- Label Studio 导出的原始 JSON 统一放到 `03_label_studio_exports`
-- 整理后的数据集 JSON 统一输出到 `04_dataset_json`
+- 转换后的 `.wav` 输出到 `02_wav_audio`
+- Label Studio 导出的原始 JSON 放到 `03_label_studio_exports`
+- 整理后的数据集 JSON 输出到 `04_dataset_json`
 
 ## 使用前提
 
@@ -30,7 +30,7 @@ atc_dataset_tool/
 conda activate your_env_name
 ```
 
-## 统一安装依赖
+## 安装依赖
 
 ```powershell
 conda activate your_env_name
