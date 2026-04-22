@@ -204,18 +204,6 @@ python .\convert_label_studio_export.py ".\03_label_studio_exports\project.json"
 python .\convert_label_studio_export.py ".\03_label_studio_exports\project.json" --output-dir ".\04_dataset_json" --indent 4
 ```
 
-### start_label_studio.bat
-
-用途：
-
-- 在当前已激活环境中启动 `Label Studio`
-
-说明：
-
-- 适合双击启动
-- 也适合在命令行中直接调用
-- 依赖当前环境已安装 `label-studio`
-
 ## 推荐工作流
 
 1. 原始音频放进 `01_raw_audio`
@@ -224,7 +212,3 @@ python .\convert_label_studio_export.py ".\03_label_studio_exports\project.json"
 4. 导出 JSON 到 `03_label_studio_exports`
 5. 用 `convert_label_studio_export.py` 整理到 `04_dataset_json`
 
-## 备注
-
-- PowerShell 中中文文件名偶尔显示乱码，通常是终端编码问题，不一定是文件本身有问题
-- 如果后续增加“按标注结果切割音频片段”的脚本，建议继续放在这个目录里
